@@ -1,22 +1,362 @@
+
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101522"><title>Класс 6 — Учебный кабинет</title><script src="https://telegram.org/js/telegram-web-app.js"></script>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101522">
+<title>Класс 6 — Учебный кабинет</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#101522;--panel:#191f30;--panel2:#222a3f;--text:#f5f7ff;--muted:#aab3cb;--accent:#7c9cff;--good:#43d9a3;--bad:#ff7185;--line:#303952}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,select{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 15px;background:var(--accent);color:#101522;font-weight:750}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.wrap{max-width:760px;margin:auto;padding:18px 15px 34px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}.muted{color:var(--muted)}h1{font-size:26px;margin:4px 0 12px}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.option{display:block;width:100%;text-align:left;margin:8px 0;background:var(--panel2);color:var(--text);border:1px solid var(--line)}.option.correct{border-color:var(--good)}.option.wrong{border-color:var(--bad)}.option:disabled{opacity:1}.hide{display:none}.pill{display:inline-block;background:var(--panel2);padding:5px 10px;border-radius:999px;margin-right:5px;font-size:13px}select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);margin:5px 0 12px}.stat{font-size:24px;font-weight:800}#feedback{margin-top:12px}.good{color:var(--good)}.bad{color:var(--bad)}
-</style></head><body><main class="wrap"><div class="muted">УЧЕБНЫЙ КАБИНЕТ · 6 КЛАСС</div><h1>Учись и набирай баллы</h1><div class="row"><div class="panel"><div class="muted">Баллы на этом устройстве</div><div class="stat" id="points">0</div></div><div class="panel"><div class="muted">Ошибки</div><div class="stat" id="mistakes">0</div></div></div>
-<section id="setup" class="panel"><h2>Новая тренировка</h2><label>Предмет</label><select id="subject"><option>Русский язык</option><option>Математика</option><option>Английский язык</option></select><label>Сложность</label><select id="level"><option value="1">1 — Начальный</option><option value="2">2 — Лёгкий</option><option value="3">3 — Средний</option><option value="4">4 — Сложный</option><option value="5">5 — Очень сложный</option><option value="6">6 — Экспертный</option></select><label>Вопросов в раунде</label><select id="count"><option>10</option><option>15</option><option>20</option><option>30</option></select><p class="muted" id="bankInfo">Загружаю банк вопросов…</p><button id="start">Начать</button></section>
-<section id="quiz" class="panel hide"><div class="row"><span class="pill" id="progress">Вопрос 1</span><span class="pill" id="tag"></span></div><h2 id="question"></h2><div id="options"></div><div id="feedback"></div><button id="next" class="hide">Следующий вопрос</button></section>
-<section id="result" class="panel hide"><h2>Раунд завершён!</h2><p id="summary"></p><button id="again">Ещё раунд</button></section>
-<section class="panel"><h3>Как это работает</h3><p class="muted">Вопросы и варианты ответов перемешиваются. При каждом раунде выбирается новая случайная последовательность. Баллы и ошибки пока сохраняются только в этом браузере, а не в общей базе класса.</p></section>
-</main><script>
-const $=id=>document.getElementById(id);const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
-let bank=[],round=[],index=0,score=0,wrong=0,answered=false;
-const saved=()=>{try{return JSON.parse(localStorage.getItem('class6stats')||'{"points":0,"mistakes":0}')}catch{return {points:0,mistakes:0}}};
-function stats(){let s=saved();$('points').textContent=s.points;$('mistakes').textContent=s.mistakes}
-function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-async function load(){try{let r=await fetch('./quiz_bank.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);let data=await r.json();bank=data.questions||[];$('bankInfo').textContent=`Загружено вопросов: ${bank.length}. По предметам и уровням сложности.`}catch(e){$('bankInfo').textContent='Не удалось загрузить quiz_bank.json. Проверь, что файл находится рядом с mini_app.html.';$('start').disabled=true}}
-function begin(){let subject=$('subject').value,level=+$('level').value,count=+$('count').value;let pool=bank.filter(q=>q.subject===subject&&q.level===level);if(!pool.length){alert('Для этого выбора пока нет вопросов.');return}round=shuffle(pool).slice(0,Math.min(count,pool.length)).map(q=>{let choices=q.options.map((text,i)=>({text,correct:i===q.answer}));return {...q,choices:shuffle(choices)}});index=0;score=0;wrong=0;$('setup').classList.add('hide');$('result').classList.add('hide');$('quiz').classList.remove('hide');show()}
-function show(){answered=false;let q=round[index];$('progress').textContent=`Вопрос ${index+1} из ${round.length}`;$('tag').textContent=`${q.subject} · уровень ${q.level}`;$('question').textContent=q.question;$('options').innerHTML='';$('feedback').textContent='';$('next').classList.add('hide');q.choices.forEach(c=>{let b=document.createElement('button');b.className='option';b.textContent=c.text;b.onclick=()=>answer(b,c,q);$('options').appendChild(b)})}
-function answer(btn,c,q){if(answered)return;answered=true;document.querySelectorAll('.option').forEach(b=>b.disabled=true);if(c.correct){btn.classList.add('correct');score++;let s=saved();s.points=(s.points||0)+10;localStorage.setItem('class6stats',JSON.stringify(s));$('feedback').innerHTML='<span class="good">Верно! +10 баллов.</span>'}else{btn.classList.add('wrong');wrong++;let s=saved();s.mistakes=(s.mistakes||0)+1;localStorage.setItem('class6stats',JSON.stringify(s));let correct=q.choices.find(x=>x.correct);document.querySelectorAll('.option').forEach(b=>{if(b.textContent===correct.text)b.classList.add('correct')});$('feedback').innerHTML=`<span class="bad">Пока неверно.</span> ${q.explanation}`}stats();$('next').classList.remove('hide');$('next').textContent=index===round.length-1?'Результаты':'Следующий вопрос'}
-function next(){index++;if(index>=round.length){$('quiz').classList.add('hide');$('result').classList.remove('hide');$('summary').textContent=`Правильных ответов: ${score} из ${round.length}. Ошибок в этом раунде: ${wrong}. Получено баллов: ${score*10}.`;return}show()}
-$('start').onclick=begin;$('next').onclick=next;$('again').onclick=()=>{$('result').classList.add('hide');$('setup').classList.remove('hide')};stats();load();
-</script></body></html>
+:root{--bg:#101522;--panel:#191f30;--panel2:#222a3f;--text:#f5f7ff;--muted:#aab3cb;--accent:#7c9cff;--good:#43d9a3;--bad:#ff7185;--line:#303952}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,select{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 15px;background:var(--accent);color:#101522;font-weight:750}
+button:disabled{opacity:.6;cursor:default}
+button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.wrap{max-width:760px;margin:auto;padding:18px 15px 34px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+.muted{color:var(--muted)}
+h1{font-size:26px;margin:4px 0 12px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+.option{display:block;width:100%;text-align:left;margin:8px 0;background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.option.correct{border-color:var(--good)}
+.option.wrong{border-color:var(--bad)}
+.option:disabled{opacity:1}
+.hide{display:none}
+.pill{display:inline-block;background:var(--panel2);padding:5px 10px;border-radius:999px;margin-right:5px;font-size:13px}
+select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);margin:5px 0 12px}
+.stat{font-size:24px;font-weight:800}
+#feedback{margin-top:12px}
+.good{color:var(--good)}
+.bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="muted">УЧЕБНЫЙ КАБИНЕТ · 6 КЛАСС</div>
+<h1>Учись и набирай баллы</h1>
+
+<div class="row">
+<div class="panel">
+<div class="muted">Баллы в общей базе</div>
+<div class="stat" id="points">—</div>
+</div>
+<div class="panel">
+<div class="muted">Ошибки на этом устройстве</div>
+<div class="stat" id="mistakes">0</div>
+</div>
+</div>
+
+<section id="setup" class="panel">
+<h2>Новая тренировка</h2>
+<label for="subject">Предмет</label>
+<select id="subject">
+<option value="russian">Русский язык</option>
+<option value="math">Математика</option>
+<option value="english">Английский язык</option>
+</select>
+
+<label for="level">Сложность</label>
+<select id="level">
+<option value="0">1 — Начальный</option>
+<option value="1">2 — Лёгкий</option>
+<option value="2">3 — Средний</option>
+<option value="3">4 — Сложный</option>
+<option value="4">5 — Очень сложный</option>
+<option value="5">6 — Экспертный</option>
+</select>
+
+<label for="count">Вопросов в раунде</label>
+<select id="count">
+<option value="5">5</option>
+<option value="10" selected>10</option>
+</select>
+
+<p class="muted" id="bankInfo">Загружаю банк вопросов…</p>
+<button id="start" disabled>Начать</button>
+<p class="muted" id="profileInfo"></p>
+</section>
+
+<section id="quiz" class="panel hide">
+<div class="row">
+<span class="pill" id="progress">Вопрос 1</span>
+<span class="pill" id="tag"></span>
+</div>
+<h2 id="question"></h2>
+<div id="options"></div>
+<div id="feedback"></div>
+<button id="next" class="hide">Следующий вопрос</button>
+</section>
+
+<section id="result" class="panel hide">
+<h2>Раунд завершён!</h2>
+<p id="summary"></p>
+<p id="saveStatus" class="muted"></p>
+<button id="again">Ещё раунд</button>
+</section>
+
+<section class="panel">
+<h3>Как это работает</h3>
+<p class="muted">Вопросы перемешиваются. Результаты отправляются на сервер и сохраняются в общей базе, если ты открыл кабинет через Telegram и сервер настроен правильно.</p>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const tg = window.Telegram?.WebApp;
+
+tg?.ready();
+tg?.expand();
+
+let bank = [];
+let round = [];
+let index = 0;
+let score = 0;
+let wrong = 0;
+let answered = false;
+let selectedAnswers = [];
+let saving = false;
+
+function localStats(){
+  try {
+    return JSON.parse(localStorage.getItem('class6stats') || '{"mistakes":0}');
+  } catch {
+    return {mistakes:0};
+  }
+}
+
+function updateMistakes(){
+  $('mistakes').textContent = localStats().mistakes || 0;
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function apiRequest(path, options = {}){
+  if(!tg?.initData){
+    throw new Error('Открой Mini App через Telegram, чтобы сохранить результат.');
+  }
+
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Telegram-Init-Data': tg.initData,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if(!response.ok){
+    throw new Error(data.error || data.message || `Ошибка сервера: ${response.status}`);
+  }
+
+  if(data.ok === false){
+    throw new Error(data.error || data.message || 'Сервер отклонил запрос.');
+  }
+
+  return data;
+}
+
+async function refreshProfile(){
+  try {
+    const data = await apiRequest('/api/profile');
+    $('points').textContent = data.points ?? 0;
+    $('profileInfo').textContent = 'Подключение к общей базе работает.';
+  } catch(e) {
+    $('points').textContent = '—';
+    $('profileInfo').textContent = e.message;
+  }
+}
+
+async function load(){
+  try {
+    const response = await fetch('./quiz_bank.json', {cache:'no-store'});
+    if(!response.ok) throw new Error('HTTP ' + response.status);
+
+    const data = await response.json();
+    bank = Array.isArray(data) ? data : (data.questions || []);
+
+    $('bankInfo').textContent = `Загружено вопросов: ${bank.length}.`;
+
+    if(!bank.length){
+      throw new Error('Банк вопросов пуст.');
+    }
+
+    $('start').disabled = false;
+  } catch(e) {
+    $('bankInfo').textContent = 'Не удалось загрузить банк вопросов: ' + e.message;
+    $('start').disabled = true;
+  }
+}
+
+function begin(){
+  const subject = $('subject').value;
+  const level = Number($('level').value);
+  const count = Number($('count').value);
+
+  const pool = bank.filter(q =>
+    q.subject === subject &&
+    Number(q.level_index) === level
+  );
+
+  if(!pool.length){
+    alert('Для этого предмета и уровня в quiz_bank.json вопросов нет.');
+    return;
+  }
+
+  round = shuffle(pool).slice(0, Math.min(count, pool.length)).map(q => {
+    const choices = q.options.map((text, originalIndex) => ({
+      text,
+      originalIndex,
+      correct: originalIndex === q.answer
+    }));
+
+    return {...q, choices:shuffle(choices)};
+  });
+
+  index = 0;
+  score = 0;
+  wrong = 0;
+  selectedAnswers = [];
+  saving = false;
+
+  $('setup').classList.add('hide');
+  $('result').classList.add('hide');
+  $('quiz').classList.remove('hide');
+
+  show();
+}
+
+function show(){
+  answered = false;
+  const q = round[index];
+
+  $('progress').textContent = `Вопрос ${index + 1} из ${round.length}`;
+  $('tag').textContent = `${q.subject} · уровень ${Number(q.level_index) + 1}`;
+  $('question').textContent = q.question;
+  $('options').innerHTML = '';
+  $('feedback').textContent = '';
+  $('next').classList.add('hide');
+
+  q.choices.forEach(choice => {
+    const button = document.createElement('button');
+    button.className = 'option';
+    button.textContent = choice.text;
+    button.onclick = () => answer(button, choice, q);
+    $('options').appendChild(button);
+  });
+}
+
+function answer(button, choice, q){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll('.option').forEach(b => b.disabled = true);
+
+  selectedAnswers.push({
+    id: q.id,
+    selected: choice.originalIndex
+  });
+
+  if(choice.correct){
+    button.classList.add('correct');
+    score++;
+    $('feedback').innerHTML = '<span class="good">Верно!</span>';
+  } else {
+    button.classList.add('wrong');
+    wrong++;
+
+    const stats = localStats();
+    stats.mistakes = (stats.mistakes || 0) + 1;
+    localStorage.setItem('class6stats', JSON.stringify(stats));
+
+    const correctChoice = q.choices.find(c => c.correct);
+
+    document.querySelectorAll('.option').forEach(b => {
+      if(b.textContent === correctChoice.text){
+        b.classList.add('correct');
+      }
+    });
+
+    $('feedback').textContent = 'Пока неверно. ' + (q.explanation || '');
+  }
+
+  updateMistakes();
+  $('next').textContent = index === round.length - 1
+    ? 'Завершить раунд'
+    : 'Следующий вопрос';
+
+  $('next').classList.remove('hide');
+}
+
+async function finishRound(){
+  if(saving) return;
+  saving = true;
+
+  $('next').disabled = true;
+  $('saveStatus').textContent = 'Отправляю результат на сервер…';
+
+  $('quiz').classList.add('hide');
+  $('result').classList.remove('hide');
+  $('summary').textContent =
+    `Предварительный результат: ${score} из ${round.length}. Ошибок: ${wrong}.`;
+
+  try {
+    const data = await apiRequest('/api/quiz/submit', {
+      method:'POST',
+      body:JSON.stringify({
+        subject:$('subject').value,
+        level:Number($('level').value),
+        answers:selectedAnswers
+      })
+    });
+
+    $('summary').textContent =
+      `Результат сервера: ${data.score} из ${data.total}.`;
+
+    $('saveStatus').textContent =
+      `Баллы за раунд: ${data.points ?? (data.score * 10)}. Результат отправлен серверу.`;
+
+    await refreshProfile();
+  } catch(e) {
+    $('saveStatus').textContent =
+      'Не удалось сохранить результат: ' + e.message;
+  } finally {
+    saving = false;
+    $('next').disabled = false;
+  }
+}
+
+function next(){
+  if(index < round.length - 1){
+    index++;
+    show();
+  } else {
+    finishRound();
+  }
+}
+
+$('start').onclick = begin;
+$('next').onclick = next;
+
+$('again').onclick = () => {
+  $('result').classList.add('hide');
+  $('setup').classList.remove('hide');
+};
+
+updateMistakes();
+load();
+refreshProfile();
+</script>
+</body>
+</html>
