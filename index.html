@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101522">
+<title>Класс 6 — Учебный кабинет</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#101522;--panel:#191f30;--panel2:#222a3f;--text:#f5f7ff;--muted:#aab3cb;--accent:#7c9cff;--good:#43d9a3;--bad:#ff7185;--line:#303952}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:12px 15px;background:var(--accent);color:#101522;font-weight:750}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}button:disabled{opacity:.45;cursor:not-allowed}.wrap{max-width:760px;margin:auto;padding:18px 15px 34px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 18px}.eyebrow{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.12em}.title{font-size:27px;font-weight:850;letter-spacing:-.04em;margin:3px 0}.muted{color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:16px 0}.stat,.card{background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:15px}.stat strong{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}.section-title{font-size:18px;margin:22px 0 11px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.subject{min-height:122px;text-align:left;background:linear-gradient(140deg,var(--panel2),var(--panel));border:1px solid var(--line);color:var(--text);padding:16px}.subject .emoji{font-size:27px;display:block;margin-bottom:8px}.subject small{display:block;color:var(--muted);font-weight:500;margin-top:3px}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.level{display:flex;width:100%;align-items:center;justify-content:space-between;text-align:left;background:var(--panel);color:var(--text);border:1px solid var(--line);margin:7px 0}.level small{color:var(--muted);font-weight:500}.question{font-size:22px;font-weight:800;margin:14px 0}.answer{display:block;width:100%;margin:8px 0;text-align:left;background:var(--panel2);color:var(--text);border:1px solid var(--line)}.answer.correct{border-color:var(--good)}.answer.wrong{border-color:var(--bad)}.hidden{display:none!important}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--muted);font-size:12px}.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:12px 0}.bar span{display:block;height:100%;background:var(--accent);width:0}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:430px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px}tr:last-child td{border-bottom:0}.field{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);margin:6px 0 12px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.nav button{flex:1;min-width:100px}.notice{padding:12px;border-radius:12px;background:var(--panel2);color:var(--muted);font-size:13px;margin:12px 0}.footer{font-size:12px;color:var(--muted);text-align:center;margin-top:26px}.toast{position:fixed;left:15px;right:15px;bottom:15px;max-width:720px;margin:auto;padding:14px;background:#29334d;border:1px solid #526080;border-radius:14px;z-index:9}.settings-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0}.light{--bg:#f3f5fb;--panel:#fff;--panel2:#e7ebf5;--text:#1b2233;--muted:#5f6a82;--accent:#7292ff;--line:#d5dbea}@media(min-width:600px){.wrap{padding:28px 24px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.title{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div><div class="eyebrow">Учебный кабинет</div><div class="title">Класс 6 <span aria-hidden="true">✦</span></div><div class="muted" id="welcome">Учись в своём темпе</div></div><button class="secondary" id="settingsTop" aria-label="Настройки">⚙️</button></header>
+<section id="home">
+<div class="stats">
+<div class="stat"><strong id="points">0</strong><span>⭐ Очки</span></div>
+<div class="stat"><strong id="streak">0</strong><span>🔥 Страйк</span></div>
+<div class="stat"><strong id="done">0</strong><span>✓ Ответов</span></div>
+</div>
+<div class="section-title">Выбери предмет</div>
+<div class="grid">
+<button class="subject" data-subject="ru"><span class="emoji">📚</span><b>Русский язык</b><small>Правила и грамотность</small></button>
+<button class="subject" data-subject="math"><span class="emoji">➗</span><b>Математика</b><small>Задачи и вычисления</small></button>
+<button class="subject" data-subject="en"><span class="emoji">🇬🇧</span><b>Английский язык</b><small>Слова и грамматика</small></button>
+</div>
+<div class="section-title">Твои достижения</div>
+<div class="card"><div class="row between"><b>Прогресс обучения</b><span class="pill" id="progressLabel">0%</span></div><div class="bar"><span id="progressBar"></span></div><div class="muted" id="progressText">Реши первое задание, чтобы начать!</div></div>
+<div class="nav"><button class="secondary" id="leaderboardBtn">🏆 Таблица учеников</button><button class="secondary" id="helpBtn">💡 Объясни ошибку</button></div>
+<div class="notice">Результаты в этом демо сохраняются на этом устройстве. Для общей таблицы всех учеников нужно подключить Python-бот и базу SQLite.</div>
+</section>
+<section id="levels" class="hidden">
+<div class="row between"><button class="secondary" id="backHome">← Назад</button><span class="pill" id="subjectPill"></span></div>
+<div class="section-title">Выбери уровень сложности</div><div id="levelList"></div>
+</section>
+<section id="quiz" class="hidden">
+<div class="row between"><button class="secondary" id="backLevels">← Уровни</button><span class="pill" id="quizMeta"></span></div>
+<div class="bar"><span id="quizProgress"></span></div>
+<div id="quizBody"></div>
+<div id="quizFeedback" class="notice hidden"></div>
+<div class="row"><button id="nextQuestion" class="hidden">Следующее задание →</button><button class="secondary" id="explainCurrent">Объясни ошибку</button></div>
+</section>
+<section id="leaderboard" class="hidden">
+<div class="row between"><button class="secondary" id="leaderBack">← Назад</button><span class="pill">Рейтинг</span></div>
+<div class="section-title">Таблица учеников</div><div class="table-wrap"><table><thead><tr><th>Ученик</th><th>Очки</th><th>Страйк</th><th>Ответы</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
+<div class="notice">Пока здесь показан только текущий пользователь. Общий рейтинг появится после подключения серверной части и регистрации учеников.</div>
+</section>
+<section id="settings" class="hidden">
+<div class="row between"><button class="secondary" id="settingsBack">← Назад</button><span class="pill">Настройки</span></div>
+<div class="section-title">Настройки интерфейса</div>
+<div class="card">
+<div class="settings-line"><div><b>Тема</b><div class="muted">Светлая или тёмная</div></div><select id="themeSelect" class="field" style="width:auto;margin:0"><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="telegram">Как в Telegram</option></select></div>
+<div class="settings-line"><div><b>Звуковые подсказки</b><div class="muted">Короткий сигнал после ответа</div></div><input id="soundToggle" type="checkbox"></div>
+<div class="settings-line"><div><b>Размер текста</b><div class="muted">Удобство чтения</div></div><select id="fontSelect" class="field" style="width:auto;margin:0"><option value="16">Обычный</option><option value="18">Крупный</option><option value="20">Очень крупный</option></select></div>
+<button id="saveSettings">Сохранить настройки</button>
+</div>
+<div class="section-title">Помощь</div><div class="card"><b>Объясни ошибку</b><p class="muted">Нажми эту кнопку после ответа — приложение покажет разбор правильного ответа. Если заметил техническую ошибку, можно скопировать сведения и отправить администратору.</p><button class="secondary" id="explainSettings">Объяснить последнюю ошибку</button></div>
+<div class="section-title">Данные</div><button class="secondary" id="resetLocal">Сбросить локальный прогресс</button>
+</section>
+<div class="footer">Класс 6 · Учись понемногу каждый день</div>
+</div>
+<div id="toast" class="toast hidden" role="status"></div>
+<script>
+(()=> {
+const tg=window.Telegram?.WebApp;
+try{tg?.ready();tg?.expand();}catch(e){}
+const subjects={ru:{name:'Русский язык',emoji:'📚'},math:{name:'Математика',emoji:'➗'},en:{name:'Английский язык',emoji:'🇬🇧'}};
+const levels=['Очень легко','Легко','Средний','Сложнее нормы','Сложно','Невозможно'];
+const questionBank={
+ru:[
+[{q:'В каком слове ударение падает на второй слог?',a:['звонит','торты','средства','щавель'],c:0,e:'В слове «звонит» ударение падает на последний слог: звонИт. В этом задании правильный вариант — «звонит».'},
+{q:'Выбери слово, написанное без ошибки.',a:['интересный','интиресный','интерестный','интирестный'],c:0,e:'Правильно: «интересный». Проверочное слово — интерес.'},
+{q:'Какое слово является именем прилагательным?',a:['быстро','синий','читать','весело'],c:1,e:'«Синий» отвечает на вопрос «какой?» и обозначает признак предмета.'}],
+[{q:'Выбери правильное окончание: о зимн... утре.',a:['-ем','-им','-ым','-ом'],c:0,e:'Правильно: «о зимнем утре» — предложный падеж, средний род.'}],
+[{q:'В каком предложении нужна запятая перед «но»?',a:['Солнце село но было тепло.','Мы читали и писали.','Дождь шёл весь день.','Я пришёл домой.'],c:0,e:'Перед противительным союзом «но», который соединяет части сложного предложения, ставится запятая.'}]],
+math:[
+[{q:'Сколько будет 48 ÷ 6?',a:['6','7','8','9'],c:2,e:'48 ÷ 6 = 8, потому что 6 × 8 = 48.'},
+{q:'Вычисли: 3/4 + 1/4.',a:['1/2','1','4/8','3/8'],c:1,e:'Знаменатели одинаковые: складываем числители. 3/4 + 1/4 = 4/4 = 1.'}],
+[{q:'Найди 25% от 80.',a:['10','15','20','25'],c:2,e:'25% — это четверть. 80 ÷ 4 = 20.'}],
+[{q:'Реши уравнение: 3x + 5 = 20.',a:['x = 3','x = 5','x = 8','x = 15'],c:1,e:'Вычтем 5: 3x = 15. Разделим на 3: x = 5.'}]],
+en:[
+[{q:'Choose the correct form: She ___ a book every day.',a:['read','reads','reading','to read'],c:1,e:'С he/she/it в Present Simple к глаголу обычно добавляется -s: She reads.'},
+{q:'What is the plural of “child”?',a:['childs','childes','children','childrens'],c:2,e:'Неправильная форма множественного числа: child → children.'}],
+[{q:'Choose the correct sentence.',a:['They is happy.','They are happy.','They am happy.','They be happy.'],c:1,e:'С местоимением they используется форма глагола to be — are.'}],
+[{q:'Complete: I have lived here ___ 2020.',a:['for','since','at','from'],c:1,e:'Since указывает начальный момент времени: since 2020. For употребляется с периодом времени.'}]]
+};
+const levelNames=['Очень легко','Легко','Средний','Сложнее нормы','Сложно','Невозможно'];
+const $=id=>document.getElementById(id);
+const state={subject:'ru',level:0,questions:[],index:0,selected:null,lastExplanation:'',lastWrong:null,settings:{theme:'dark',sound:false,font:16}};
+let profile={name:'Ученик',points:0,streak:0,done:0,correct:0,answeredToday:0};
+function load(){try{const p=JSON.parse(localStorage.getItem('class6_profile')||'null');if(p)profile={...profile,...p};const s=JSON.parse(localStorage.getItem('class6_settings')||'null');if(s)state.settings={...state.settings,...s};}catch(e){}}
+function save(){try{localStorage.setItem('class6_profile',JSON.stringify(profile));localStorage.setItem('class6_settings',JSON.stringify(state.settings));}catch(e){}}
+function toast(msg){$('toast').textContent=msg;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),3200)}
+function show(id){['home','levels','quiz','leaderboard','settings'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
+function updateHome(){ $('points').textContent=profile.points;$('streak').textContent=profile.streak;$('done').textContent=profile.done;const p=Math.min(100,profile.correct*5);$('progressLabel').textContent=p+'%';$('progressBar').style.width=p+'%';$('progressText').textContent=profile.done?`Верных ответов: ${profile.correct} из ${profile.done}. Продолжай тренироваться!`:'Реши первое задание, чтобы начать!';}
+function userName(){let n='Ученик';try{n=tg?.initDataUnsafe?.user?.first_name||n;}catch(e){}return n;}
+function openLevels(s){state.subject=s;$('subjectPill').textContent=subjects[s].emoji+' '+subjects[s].name;$('levelList').innerHTML='';levels.forEach((name,i)=>{const b=document.createElement('button');b.className='level';b.innerHTML=`<span><b>${i+1}. ${name}</b><br><small>${i===0?'Базовые задания':i===5?'Задания повышенной сложности':'Практика и закрепление'}</small></span><span>→</span>`;b.onclick=()=>startQuiz(i);$('levelList').appendChild(b)});show('levels');}
+function getQuestions(s,l){const bank=questionBank[s];const tier=Math.min(l,2);let arr=bank[tier]||bank[0];return arr.map(q=>({...q,a:[...q.a]}));}
+function startQuiz(l){state.level=l;state.questions=getQuestions(state.subject,l);state.index=0;state.selected=null;renderQuestion();show('quiz');}
+function renderQuestion(){const q=state.questions[state.index];if(!q){finishQuiz();return;}$('quizMeta').textContent=subjects[state.subject].name+' · '+levelNames[state.level];$('quizProgress').style.width=(state.index/state.questions.length*100)+'%';$('quizFeedback').classList.add('hidden');$('nextQuestion').classList.add('hidden');$('explainCurrent').classList.remove('hidden');$('quizBody').innerHTML=`<div class="muted">Задание ${state.index+1} из ${state.questions.length}</div><div class="question">${q.q}</div><div id="answers"></div>`;q.a.forEach((a,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+a;b.onclick=()=>answer(i,b);$('answers').appendChild(b)});}
+function answer(i,btn){if(state.selected!==null)return;state.selected=i;const q=state.questions[state.index];document.querySelectorAll('.answer').forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct');});if(i===q.c){profile.points+=10+state.level*2;profile.correct++;profile.streak++;$('quizFeedback').textContent='Верно! +'+(10+state.level*2)+' очков. '+q.e;}else{btn.classList.add('wrong');profile.streak=0;state.lastWrong={question:q.q,chosen:q.a[i],correct:q.a[q.c],explanation:q.e};$('quizFeedback').textContent='Пока неверно. Правильный ответ: '+q.a[q.c]+'. Нажми «Объясни ошибку», чтобы разобрать решение.';}profile.done++;profile.answeredToday++;save();updateHome();$('quizFeedback').classList.remove('hidden');$('nextQuestion').classList.remove('hidden');if(state.settings.sound){try{const C=window.AudioContext||window.webkitAudioContext;const c=new C();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=i===q.c?660:220;g.gain.value=.05;o.start();o.stop(c.currentTime+.12);}catch(e){}}}
+function finishQuiz(){show('home');updateHome();toast('Тренировка завершена!');}
+function explain(){if(state.lastWrong){const x=state.lastWrong;tg?.showPopup?.({title:'Разбор ошибки',message:`Задание: ${x.question}\nТвой ответ: ${x.chosen}\nПравильный ответ: ${x.correct}\n\nОбъяснение: ${x.explanation}`,buttons:[{type:'ok'}]})||toast(`Правильный ответ: ${x.correct}. ${x.explanation}`);}else toast('Сначала ответь на задание. Если ответ будет неверным, здесь появится объяснение.');}
+function leaderboard(){ $('leaderRows').innerHTML=`<tr><td>${escapeHtml(profile.name)}</td><td>${profile.points}</td><td>${profile.streak}</td><td>${profile.done}</td></tr>`;show('leaderboard');}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function applySettings(){document.body.classList.toggle('light',state.settings.theme==='light');document.documentElement.style.fontSize=state.settings.font+'px';}
+function openSettings(){ $('themeSelect').value=state.settings.theme;$('soundToggle').checked=state.settings.sound;$('fontSelect').value=String(state.settings.font);show('settings');}
+document.querySelectorAll('[data-subject]').forEach(b=>b.addEventListener('click',()=>openLevels(b.dataset.subject)));
+$('settingsTop').onclick=openSettings;$('backHome').onclick=()=>{show('home');updateHome()};$('backLevels').onclick=()=>openLevels(state.subject);$('leaderboardBtn').onclick=leaderboard;$('leaderBack').onclick=()=>show('home');$('helpBtn').onclick=explain;$('explainCurrent').onclick=explain;$('explainSettings').onclick=explain;$('settingsBack').onclick=()=>show('home');
+$('nextQuestion').onclick=()=>{state.index++;state.selected=null;renderQuestion();};
+$('saveSettings').onclick=()=>{state.settings.theme=$('themeSelect').value;state.settings.sound=$('soundToggle').checked;state.settings.font=Number($('fontSelect').value);save();applySettings();toast('Настройки сохранены.');};
+$('resetLocal').onclick=()=>{if(confirm('Сбросить очки, страйк и результаты на этом устройстве?')){profile={...profile,points:0,streak:0,done:0,correct:0,answeredToday:0};save();updateHome();toast('Локальный прогресс сброшен.');}};
+load();profile.name=userName();save();applySettings();updateHome();
+})();
+</script>
+</body>
+</html>
